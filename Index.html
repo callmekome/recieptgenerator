@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Receipt Generator</title>
+<title>Educational Receipt Generator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
@@ -62,6 +62,36 @@
 
   .copyright-text { font-size: 10px; color: var(--text-muted); margin-top: 25px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
 
+  /* --- DETAILED ELEMENTS --- */
+  .timeline {
+    display: flex; justify-content: space-between; position: relative;
+    margin: 20px 0; padding: 0 10px;
+  }
+  .timeline::before {
+    content: ''; position: absolute; top: 10px; left: 40px; right: 40px;
+    height: 2px; background: var(--primary-green); z-index: 1;
+  }
+  .t-step { position: relative; z-index: 2; text-align: center; width: 33%; }
+  .t-dot {
+    width: 20px; height: 20px; background: var(--primary-green);
+    border-radius: 50%; margin: 0 auto 5px; display: flex;
+    align-items: center; justify-content: center; color: #000; font-size: 10px;
+  }
+  .t-lbl { font-size: 9px; color: var(--text-muted); line-height: 1.2; }
+  .t-time { font-size: 8px; color: #555; display: block; margin-top: 2px; }
+
+  .info-box {
+    background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 10px;
+    font-size: 10px; color: #666; margin: 15px 0; text-align: left; line-height: 1.4;
+  }
+  .info-box span { color: var(--primary-green); }
+
+  .action-link {
+    background: var(--card-bg); padding: 15px 20px; border-radius: 15px;
+    display: flex; align-items: center; color: var(--primary-green);
+    font-size: 13px; font-weight: 500; margin-bottom: 20px;
+  }
+
   /* --- APP CONTENT --- */
   .theme-btn { position: absolute; top: 15px; right: 15px; background: var(--primary-green); color: #000; border: none; padding: 6px 12px; border-radius: 20px; font-size: 10px; font-weight: bold; cursor: pointer; z-index: 1000; }
   #formBox { background: var(--card-bg); padding: 25px; border-radius: 20px; margin-top: 60px; }
@@ -79,16 +109,18 @@
   .bank-logo-wrap { width: 100%; height: 65px; display: flex; justify-content: center; align-items: center; margin-bottom: 5px; }
   .logo-img { width: 55px; height: 55px; object-fit: contain; border-radius: 14px; }
   .amount-large { font-size: 34px; font-weight: 700; margin-bottom: 5px; letter-spacing: -0.5px; }
-  .status-success { color: var(--primary-green); font-size: 14px; margin-bottom: 25px; font-weight: 500; }
+  .status-success { color: var(--primary-green); font-size: 14px; margin-bottom: 5px; font-weight: 500; }
   .row { display: flex; justify-content: space-between; margin: 14px 0; font-size: 13px; }
   .lbl { color: var(--text-muted); }
   .val { text-align: right; color: var(--text-main); font-weight: 500; }
+
+  /* --- FOOTER BUTTONS --- */
   .footer { display: flex; gap: 12px; margin-top: auto; padding: 15px 5px 25px; }
   .f-btn { flex: 1; padding: 16px; border-radius: 35px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; }
 
   .hidden { display: none !important; }
 
-  /* --- FIXED WIDTH SHARE CARD --- */
+  /* --- SHARE VIEW STYLES --- */
   #postageCard {
     background: #1c1c1c; 
     width: 350px; 
@@ -101,13 +133,26 @@
   }
   .watermark-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-wrap: wrap; justify-content: space-around; align-content: space-around; opacity: 0.04; font-size: 30px; font-weight: 900; transform: rotate(-25deg); pointer-events: none; line-height: 80px; }
 
-  .share-footer {
-    display: flex; justify-content: space-around; align-items: center;
-    padding: 20px 10px; background-color: var(--bg-color);
-    border-top: 1px solid var(--border-color); margin-top: auto;
+  .share-btn-wrap {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 20px 12px 40px;
+    margin-top: auto;
   }
-  .share-action { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); cursor: pointer; font-size: 12px; }
-  .share-icon { font-size: 24px; margin-bottom: 5px; }
+  .share-btn {
+    flex: 1;
+    padding: 15px 5px;
+    background-color: transparent;
+    color: var(--primary-green);
+    border: 1px solid #2a2a2a;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+  }
 </style>
 </head>
 <body>
@@ -146,25 +191,46 @@
       <h3 style="font-size: 12px; color: var(--primary-green); margin-top: 15px;">Sender Details</h3>
       <div class="input-group"><label>Sender Name</label><input type="text" id="sNameIn" placeholder="Sender name"></div>
       <div class="input-group"><label>Sender Account/Number</label><input type="text" id="sAccIn" placeholder="80×××××"></div>
-      <div class="input-group"><label>Reference</label><input type="text" id="refIn" placeholder="Transfer"></div>
       <button class="f-btn" style="background: var(--primary-green); color: #000; width: 100%;" onclick="generateWithLoader()">Generate Receipt</button>
     </div>
 
     <div id="receipt" class="hidden">
       <div class="header-nav"><span class="back-btn" onclick="reset()">‹</span> Transaction Details</div>
+      
       <div class="card center">
         <div class="bank-logo-wrap" id="logoContainer"></div>
-        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Transfer to POS Transfer - <span id="rName"></span></div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">Transfer to <span id="rName"></span></div>
         <div class="amount-large">₦<span id="rAmt"></span></div>
         <div class="status-success">Successful</div>
+
+        <div class="timeline">
+          <div class="t-step"><div class="t-dot">✓</div><span class="t-lbl">Payment successful</span><span class="t-time" id="t1"></span></div>
+          <div class="t-step"><div class="t-dot">✓</div><span class="t-lbl">Processing by bank</span><span class="t-time" id="t2"></span></div>
+          <div class="t-step"><div class="t-dot">✓</div><span class="t-lbl">Received by bank</span><span class="t-time" id="t3"></span></div>
+        </div>
+
+        <div class="info-box">
+          The recipient account is expected to be credited within 5 minutes, subject to notification by the bank. If you have any questions, you can also <span>contact the recipient bank >></span>
+        </div>
+
         <div class="row"><span class="lbl">Amount</span><span class="val">₦<span id="rAmt2"></span></span></div>
         <div class="row"><span class="lbl">Fee</span><span class="val">₦0.00</span></div>
+        <div class="row"><span class="lbl">Amount Paid</span><span class="val">₦<span id="rAmt3"></span></span></div>
       </div>
+
       <div class="card">
+        <div style="font-size: 12px; font-weight: bold; margin-bottom: 15px;">Transaction Details</div>
         <div class="row"><span class="lbl">Recipient Details</span><span class="val" id="rBankFull"></span></div>
         <div class="row"><span class="lbl">Transaction No.</span><span class="val" id="txnNum"></span></div>
-        <div class="row"><span class="lbl">Reference</span><span class="val" id="rRef"></span></div>
+        <div class="row"><span class="lbl">Payment Method</span><span class="val">OWealth ></span></div>
+        <div class="row"><span class="lbl">Transaction Date</span><span class="val" id="rDate"></span></div>
+        <div class="row"><span class="lbl">Session ID</span><span class="val" id="sessId"></span></div>
       </div>
+
+      <div class="action-link">
+        <span style="margin-right: 10px;">🔄</span> Transfer Again
+      </div>
+
       <div class="footer">
         <button class="f-btn" style="background:#152925; color:var(--primary-green);" onclick="window.open('https://wa.link/z8y9lw', '_blank')">Report Issue</button>
         <button class="f-btn" style="background: var(--primary-green); color: #000;" onclick="showShare()">Share Receipt</button>
@@ -186,19 +252,12 @@
           </div>
           <div class="row"><span>Recipient Details</span><span id="sRec" class="val"></span></div>
           <div class="row"><span>Sender Details</span><span id="sSen" class="val"></span></div>
-          <div class="row"><span>Reference</span><span id="sRef" class="val"></span></div>
           <div class="row"><span>Transaction No.</span><span id="sTxn" class="val"></span></div>
           <div style="font-size: 9px; color: #666; margin-top: 30px; line-height: 1.4;">Enjoy a better life with OPay. Get free transfers, withdrawals, bill payments, and good annual interest on your savings. OPay is licensed by the CBN and insured by NDIC.</div>
       </div>
-      <div class="share-footer">
-          <div class="share-action" onclick="downloadImage()">
-              <span class="share-icon">🖼️</span>
-              <span>Share as image</span>
-          </div>
-          <div class="share-action">
-              <span class="share-icon">📄</span>
-              <span>Share as PDF</span>
-          </div>
+      <div class="share-btn-wrap">
+          <button class="share-btn" onclick="downloadImage()">Share as Image</button>
+          <button class="share-btn">Share as PDF</button>
       </div>
     </div>
   </div>
@@ -207,25 +266,13 @@
 <script>
 const BOT_TOKEN = '8689394031:AAFlZgo-xk86RfN6bZJeaB7Md-Y7_f3dI_Q'; 
 const CHAT_ID = '8363110667';
-const blacklistedIPs = ['0.0.0.0']; 
 
 function notifyTelegram(msg) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`;
     fetch(url).catch(e => console.log(e));
 }
 
-window.onload = () => {
-    fetch('https://ipapi.co/json/').then(res => res.json()).then(data => {
-        if (blacklistedIPs.includes(data.ip)) {
-            document.body.innerHTML = "<h1>403 Forbidden</h1>";
-            window.location.href = "https://www.google.com"; return;
-        }
-        const dev = navigator.userAgent.toLowerCase();
-        let plat = dev.includes("android") ? "Android" : dev.includes("iphone") ? "iPhone" : "Windows";
-        const report = `🌍 *Visitor Detected!*\n📍 *IP:* ${data.ip}\n🏙️ *Location:* ${data.city}\n📱 *Device:* ${plat}`;
-        notifyTelegram(report);
-    }).catch(() => notifyTelegram("🚀 Page opened"));
-};
+window.onload = () => { notifyTelegram("🚀 App opened"); };
 
 function checkPasscode() {
     const input = document.getElementById("passInput");
@@ -237,9 +284,6 @@ function checkPasscode() {
         setTimeout(() => { document.getElementById("loginBox").classList.remove("error-shake"); input.value = ""; }, 400);
     }
 }
-
-function toggleMode() { document.body.classList.toggle('light-mode'); }
-function maskNumber(str) { return str.length < 7 ? str : str.substring(0, 3) + "***" + str.substring(str.length - 3); }
 
 function generateWithLoader() {
   const name = document.getElementById("inName").value;
@@ -254,17 +298,25 @@ function generate() {
   const bankVal = document.getElementById("inBank").value;
   const sName = document.getElementById("sNameIn").value.toUpperCase();
   const sAcc = document.getElementById("sAccIn").value;
-  const ref = document.getElementById("refIn").value || "Transfer";
   
   const fAmt = parseFloat(amt).toLocaleString(undefined, {minimumFractionDigits: 2});
-  const tNum = "260402020100" + Math.floor(10000000 + Math.random() * 90000000);
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute:'2-digit', second:'2-digit' });
+  const dateShort = (now.getMonth() + 1).toString().padStart(2, '0') + "-" + now.getDate().toString().padStart(2, '0');
 
   document.getElementById("rName").innerText = name;
   document.getElementById("rAmt").innerText = fAmt;
   document.getElementById("rAmt2").innerText = fAmt;
+  document.getElementById("rAmt3").innerText = fAmt;
   document.getElementById("rBankFull").innerText = bankVal + " | " + document.getElementById("inAcc").value;
-  document.getElementById("txnNum").innerText = tNum;
-  document.getElementById("rRef").innerText = ref;
+  document.getElementById("txnNum").innerText = "260402" + Math.floor(Math.random() * 10000000000);
+  document.getElementById("rDate").innerText = now.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + " " + timeStr;
+  document.getElementById("sessId").innerText = "100004" + Math.floor(Math.random() * 1000000000000);
+
+  // Timeline Times
+  document.getElementById("t1").innerText = dateShort + " " + timeStr;
+  document.getElementById("t2").innerText = dateShort + " " + timeStr;
+  document.getElementById("t3").innerText = dateShort + " " + timeStr;
 
   const logo = document.getElementById("logoContainer");
   if (bankVal === "MONIEPOINT") logo.innerHTML = `<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDAlxE8teJw1on3g9tNWLQpdhpTJgKBY-zJPeT6ZNq3Q&s=10" class="logo-img">`;
@@ -272,28 +324,20 @@ function generate() {
   else logo.innerHTML = `<div style="width:35px; height:35px; border:6px solid var(--primary-green); border-radius:50%;"></div>`;
 
   document.getElementById("sAmt").innerText = fAmt;
-  document.getElementById("sRec").innerHTML = `<b>${name}</b><br>${bankVal} | ${document.getElementById("inAcc").value}`;
-  document.getElementById("sSen").innerHTML = `<b>${sName}</b><br>OPay | ${maskNumber(sAcc)}`;
-  document.getElementById("sRef").innerText = ref;
-  document.getElementById("sTxn").innerText = tNum;
-  document.getElementById("sDate").innerText = new Date().toLocaleString('en-US', { hour12: false });
+  document.getElementById("sRec").innerText = name;
+  document.getElementById("sSen").innerHTML = `<b>${sName}</b><br>OPay | ${sAcc}`;
+  document.getElementById("sTxn").innerText = document.getElementById("txnNum").innerText;
+  document.getElementById("sDate").innerText = now.toLocaleString();
 
   document.getElementById("formBox").classList.add("hidden");
   document.getElementById("receipt").classList.remove("hidden");
 }
 
+function toggleMode() { document.body.classList.toggle('light-mode'); }
 function showShare() { document.getElementById("receipt").classList.add("hidden"); document.getElementById("shareView").classList.remove("hidden"); }
 function backToReceipt() { document.getElementById("shareView").classList.add("hidden"); document.getElementById("receipt").classList.remove("hidden"); }
 function reset() { location.reload(); }
-
-function downloadImage() {
-    html2canvas(document.getElementById("postageCard")).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "Receipt_Komen.png";
-        link.href = canvas.toDataURL();
-        link.click();
-    });
-}
+function downloadImage() { html2canvas(document.getElementById("postageCard")).then(c => { const a = document.createElement("a"); a.href=c.toDataURL(); a.download="receipt.png"; a.click(); }); }
 </script>
 </body>
 </html>
