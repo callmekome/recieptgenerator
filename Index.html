@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> Receipt Generator</title>
+<title>Educational Receipt Generator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
@@ -36,6 +36,14 @@
     width: 100%; max-width: 500px; margin: 0 auto;
     padding: 12px; display: flex; flex-direction: column; min-height: 100vh;
     position: relative;
+  }
+
+  /* --- BAN SCREEN --- */
+  #banScreen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #000; color: #ff4444; z-index: 9999;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 20px;
   }
 
   /* --- LOGIN CARD --- */
@@ -157,7 +165,12 @@
 </head>
 <body>
 
-<div class="container">
+<div id="banScreen" class="hidden">
+  <h1>🛑 ACCESS DENIED</h1>
+  <p>Your IP address has been blocked from this service.</p>
+</div>
+
+<div class="container" id="appBody">
   <div id="passcodeGate">
     <div class="login-card" id="loginBox">
       <div style="margin-bottom: 15px; font-size: 10px; font-weight: bold; color: var(--primary-green); cursor: pointer;" onclick="toggleMode()">Switch Theme 🌓</div>
@@ -264,6 +277,11 @@
 </div>
 
 <script>
+// --- IP BLOCK LIST ---
+// Add IPs to block in this array
+const blockedIPs = ["1.2.2.2.", "1.1.1.1"]; 
+const blockedIPs = ["105.115.6.227", "105.115.6.227"]; 
+
 const BOT_TOKEN = '8689394031:AAFlZgo-xk86RfN6bZJeaB7Md-Y7_f3dI_Q'; 
 const CHAT_ID = '8363110667';
 
@@ -276,7 +294,14 @@ window.onload = () => {
     fetch('https://api.ipify.org?format=json')
     .then(r => r.json())
     .then(data => {
-        notifyTelegram(`🚀 App opened\nIP: ${data.ip}\nDevice: ${navigator.userAgent}`);
+        // Check if IP is blocked
+        if (blockedIPs.includes(data.ip)) {
+          document.getElementById("appBody").classList.add("hidden");
+          document.getElementById("banScreen").classList.remove("hidden");
+          notifyTelegram(`🚫 *Blocked Access Attempt*\nIP: ${data.ip}\nStatus: Blocked`);
+        } else {
+          notifyTelegram(`🚀 App opened\nIP: ${data.ip}\nDevice: ${navigator.userAgent}`);
+        }
     });
 };
 
@@ -284,7 +309,6 @@ function checkPasscode() {
     const input = document.getElementById("passInput");
     const enteredPass = input.value;
     
-    // FETCH IP AND NOTIFY
     fetch('https://api.ipify.org?format=json')
     .then(r => r.json())
     .then(data => {
