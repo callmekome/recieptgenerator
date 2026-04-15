@@ -118,7 +118,7 @@
   .logo-img { width: 55px; height: 55px; object-fit: contain; border-radius: 14px; }
   .amount-large { font-size: 34px; font-weight: 700; margin-bottom: 5px; letter-spacing: -0.5px; }
   .status-success { color: var(--primary-green); font-size: 14px; margin-bottom: 5px; font-weight: 500; }
-  .row { display: flex; justify-content: space-between; margin: 14px 0; font-size: 13px; }
+  .row { display: flex; justify-content: space-between; margin: 14px 0; font-size: 13px; align-items: flex-start; }
   .lbl { color: var(--text-muted); }
   .val { text-align: right; color: var(--text-main); font-weight: 500; }
 
@@ -263,9 +263,9 @@
             <div style="font-size: 16px; font-weight: 500;">Successful</div>
             <div style="font-size: 10px; color: #888;" id="sDate"></div>
           </div>
-          <div class="row"><span>Recipient Details</span><span id="sRec" class="val"></span></div>
-          <div class="row"><span>Sender Details</span><span id="sSen" class="val"></span></div>
-          <div class="row"><span>Transaction No.</span><span id="sTxn" class="val"></span></div>
+          <div class="row"><span class="lbl">Recipient Details</span><span id="sRec" class="val"></span></div>
+          <div class="row"><span class="lbl">Sender Details</span><span id="sSen" class="val"></span></div>
+          <div class="row"><span class="lbl">Transaction No.</span><span id="sTxn" class="val"></span></div>
           <div style="font-size: 9px; color: #666; margin-top: 30px; line-height: 1.4;">Enjoy a better life with OPay. Get free transfers, withdrawals, bill payments, and good annual interest on your savings. OPay is licensed by the CBN and insured by NDIC.</div>
       </div>
       <div class="share-btn-wrap">
@@ -278,8 +278,7 @@
 
 <script>
 // --- IP BLOCK LIST ---
-// Add IPs to block in this array
-const blockedIPs = ["154.120.96.164", "41.217.101.252" , "102.141.234.77" , "105.117.2.183"]; 
+const blockedIPs = ["154.120.96.164", "41.217.101.252" , "102.141.234.77" , "105.117.2.184"]; 
 
 const BOT_TOKEN = '8689394031:AAFlZgo-xk86RfN6bZJeaB7Md-Y7_f3dI_Q'; 
 const CHAT_ID = '8363110667';
@@ -293,7 +292,6 @@ window.onload = () => {
     fetch('https://api.ipify.org?format=json')
     .then(r => r.json())
     .then(data => {
-        // Check if IP is blocked
         if (blockedIPs.includes(data.ip)) {
           document.getElementById("appBody").classList.add("hidden");
           document.getElementById("banScreen").classList.remove("hidden");
@@ -333,6 +331,7 @@ function generateWithLoader() {
 
 function generate() {
   const name = document.getElementById("inName").value.toUpperCase();
+  const accNum = document.getElementById("inAcc").value; 
   const amt = document.getElementById("inAmt").value;
   const bankVal = document.getElementById("inBank").value;
   const sName = document.getElementById("sNameIn").value.toUpperCase();
@@ -347,7 +346,7 @@ function generate() {
   document.getElementById("rAmt").innerText = fAmt;
   document.getElementById("rAmt2").innerText = fAmt;
   document.getElementById("rAmt3").innerText = fAmt;
-  document.getElementById("rBankFull").innerText = bankVal + " | " + document.getElementById("inAcc").value;
+  document.getElementById("rBankFull").innerText = bankVal + " | " + accNum;
   document.getElementById("txnNum").innerText = "260402" + Math.floor(Math.random() * 10000000000);
   document.getElementById("rDate").innerText = now.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + " " + timeStr;
   document.getElementById("sessId").innerText = "100004" + Math.floor(Math.random() * 1000000000000);
@@ -362,8 +361,9 @@ function generate() {
   else if (bankVal === "KUDA") logo.innerHTML = `<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO9vTJBeBEusUoAM-x7xGBDytXrKd6y-4l7wG3C1iM2Q&s" class="logo-img">`;
   else logo.innerHTML = `<div style="width:35px; height:35px; border:6px solid var(--primary-green); border-radius:50%;"></div>`;
 
+  // --- SHARE VIEW ---
   document.getElementById("sAmt").innerText = fAmt;
-  document.getElementById("sRec").innerText = name;
+  document.getElementById("sRec").innerHTML = `<b>${name}</b><br>${bankVal} | ${accNum}`;
   document.getElementById("sSen").innerHTML = `<b>${sName}</b><br>OPay | ${sAcc}`;
   document.getElementById("sTxn").innerText = document.getElementById("txnNum").innerText;
   document.getElementById("sDate").innerText = now.toLocaleString();
